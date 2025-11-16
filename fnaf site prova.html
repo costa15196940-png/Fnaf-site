@@ -1,0 +1,562 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>FNAF WORLD channel</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+<style>
+  /* --- Theme & layout --- */
+  :root{
+    --bg1:#040206; --bg2:#0b0508;
+    --panel:#0f0f12; --glass: rgba(255,255,255,0.03);
+    --accent:#ff2b2b; --muted:#9aa0a6;
+    --glow: 0 0 18px rgba(255,43,43,0.12);
+    --maxw:1100px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eee}
+  /* animated smoky lights background */
+  .bg{
+    position:fixed;inset:0;z-index:-2;overflow:hidden;
+    background: radial-gradient(ellipse at 10% 20%, rgba(255,40,40,0.06) 0%, transparent 20%),
+                radial-gradient(ellipse at 90% 80%, rgba(255,0,80,0.04) 0%, transparent 18%);
+    animation: pulse 8s infinite alternate;
+  }
+  @keyframes pulse{from{transform:scale(1)} to{transform:scale(1.02)}}
+  .grain{position:fixed;inset:0;z-index:-1;opacity:.06;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="n"><feTurbulence baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" /></svg>');mix-blend-mode:overlay}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.25));backdrop-filter:blur(4px);position:sticky;top:0;z-index:40;border-bottom:1px solid rgba(255,255,255,0.03)}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,#1a1a1a,#000);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--glow)}
+  .brand h1{margin:0;font-size:1.05rem;letter-spacing:0.6px;color:var(--accent)}
+  nav{display:flex;gap:12px;align-items:center}
+  nav a{color:#ddd;text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:600;font-size:.95rem}
+  nav a:hover{background:rgba(255,255,255,0.02);box-shadow:var(--glow);transform:translateY(-2px)}
+
+  main{max-width:var(--maxw);margin:26px auto;padding:18px}
+  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
+  h2{margin:0 0 12px 0;color:var(--accent)}
+
+  /* --- Annunci slider --- */
+  .slider-wrap{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+  .slider{position:relative;height:300px;border-radius:10px;overflow:hidden}
+  .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#070707;background-size:cover;background-position:center;transition:opacity .6s}
+  .slide.hidden{opacity:0;pointer-events:none}
+  .slide .caption{background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.6));padding:10px;border-radius:8px;max-width:80%;text-align:center}
+  .latest{border-radius:10px;padding:12px;background:linear-gradient(180deg,#090909,#080808);min-height:88px}
+
+  /* --- Sections --- */
+  section{margin-top:18px}
+  .cols{display:grid;grid-template-columns:1fr 360px;gap:16px}
+  .post{background:linear-gradient(180deg,#0f0f10,#0a0a0a);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+  .small{font-size:.9rem;color:var(--muted)}
+  .btn{background:var(--accent);border:0;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+  .muted{color:var(--muted)}
+
+  /* fanart grid */
+  .fan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .fan-item{background:#0b0b0b;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);text-align:center}
+  .fan-item img{max-width:100%;height:140px;object-fit:cover;border-radius:6px}
+
+  /* polls / votes */
+  .bar{height:12px;background:#111;border-radius:8px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,#ff6b6b,#ff2b2b);width:0%}
+
+  /* admin floating box */
+  .admin-box{position:fixed;right:16px;top:16px;z-index:60}
+  .admin-login{background:var(--panel);padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+  .admin-panel{display:none;width:360px;padding:12px;border-radius:10px;background:linear-gradient(180deg,#101014,#08080a);box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+  .admin-panel .row{margin-bottom:8px}
+
+  footer{max-width:var(--maxw);margin:26px auto;color:var(--muted);text-align:center;padding:12px 0}
+  /* responsive */
+  @media (max-width:900px){ .slider-wrap,.cols{grid-template-columns:1fr} .fan-grid{grid-template-columns:repeat(2,1fr)} .admin-panel{width:92vw} }
+</style>
+</head>
+<body>
+  <div class="bg"></div><div class="grain"></div>
+
+  <header>
+    <div class="brand">
+      <div class="logo">⚙️</div>
+      <div>
+        <h1>FNAF WORLD channel</h1>
+        <div class="muted" style="font-size:.82rem">HQ del team • private fan hub</div>
+      </div>
+    </div>
+
+    <nav>
+      <a href="#annunci">Annunci</a>
+      <a href="#commenti">Commenti</a>
+      <a href="#fanart">Fanart</a>
+      <a href="#sondaggi">Sondaggi</a>
+      <a href="#voti">Voti</a>
+      <a href="#info">Info</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ANNUNCI -->
+    <section id="annunci" class="panel">
+      <h2>Annunci</h2>
+      <div class="slider-wrap">
+        <div class="slider" id="slider">
+          <!-- slides injected by JS -->
+        </div>
+        <div>
+          <div class="latest" id="latestText"><strong>Ultimo annuncio</strong><div class="small muted" id="latestBody">Nessun annuncio</div></div>
+          <div style="height:12px"></div>
+          <div class="post small muted">Solo gli admin possono creare annunci ufficiali. Gli iscritti possono leggere qui sotto.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COMMENTI -->
+    <section id="commenti" class="panel" style="margin-top:18px">
+      <h2>Commenti</h2>
+      <div class="cols">
+        <div>
+          <div class="post">
+            <div style="display:flex;gap:8px;margin-bottom:8px">
+              <input id="c_name" placeholder="Nome" style="flex:0 0 140px;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff">
+              <input id="c_text" placeholder="Scrivi un commento..." style="flex:1;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff">
+              <button class="btn" id="c_send">Invia</button>
+            </div>
+<div id="emojiBar" style="margin:6px 0;">
+  <button class="btn" style="padding:4px 6px">💗</button>
+  <button class="btn" style="padding:4px 6px">🦊</button>
+  <button class="btn" style="padding:4px 6px">🎀</button>
+  <button class="btn" style="padding:4px 6px">💛</button>
+  <button class="btn" style="padding:4px 6px">🍪</button>
+  <button class="btn" style="padding:4px 6px">🎁</button>
+  <button class="btn" style="padding:4px 6px">💜</button>
+  <button class="btn" style="padding:4px 6px">🎂</button>
+  <button class="btn" style="padding:4px 6px">😎</button>
+  <button class="btn" style="padding:4px 6px">😂</button>
+  <button class="btn" style="padding:4px 6px">🔥</button>
+  <button class="btn" style="padding:4px 6px">👍</button>
+  <button class="btn" style="padding:4px 6px">❤️</button>
+</div>
+            <div id="c_list" class="muted small">Nessun commento</div>
+          </div>
+        </div>
+        <aside class="post small">
+          <strong>Regole</strong>
+          <div class="muted" style="margin-top:6px">Comportatevi bene. Niente spoiler nei commenti senza avviso.</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- FANART -->
+    <section id="fanart" class="panel">
+      <h2>Fanart</h2>
+      <div style="display:flex;gap:12px;align-items:flex-start">
+        <div style="flex:1">
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input id="f_title" placeholder="Titolo / autore" style="flex:0 0 180px;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff">
+            <input id="f_file" type="file" accept="image/*" style="flex:1">
+            <button class="btn" id="f_add">Carica</button>
+          </div>
+          <div class="fan-grid" id="fan_grid">
+            <!-- fanart items -->
+          </div>
+        </div>
+        <aside class="post small" style="width:320px">
+          <strong>Info</strong>
+          <div class="muted" style="margin-top:8px">Carica immagini rispettando i diritti. Le immagini vengono salvate solo nel browser di chi le carica oppure nel DB (se supportato).</div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- SONDAGGI -->
+    <section id="sondaggi" class="panel">
+      <h2>Sondaggi</h2>
+      <div id="polls_list" class="post small muted">Nessun sondaggio</div>
+      <div style="margin-top:10px" class="muted small">Gli admin possono creare sondaggi dal pannello.</div>
+    </section>
+
+    <!-- VOTI -->
+    <section id="voti" class="panel">
+      <h2>Voti</h2>
+      <div id="votes_list" class="post small muted">Nessun voto attivo</div>
+    </section>
+
+    <!-- INFO -->
+    <section id="info" class="panel">
+      <h2>Info del gruppo</h2>
+      <div class="post" style="margin-bottom:10px">
+        <div id="info_text">Benvenuti nel FNAF WORLD channel! Qui pubblichiamo annunci, fanart e sondaggi del nostro gruppo.</div>
+      </div>
+      <div class="muted small">Solo gli admin possono modificare le Info (salvate localmente).</div>
+    </section>
+
+  </main>
+
+  <!-- admin box -->
+  <div class="admin-box">
+    <div class="admin-login">
+      <input id="pw" type="password" placeholder="Parola admin" style="padding:6px;border-radius:6px;background:#060606;border:1px solid #222;color:#fff">
+      <button id="pw_btn" class="btn" style="margin-left:6px">Entra</button>
+    </div>
+
+    <div class="admin-panel panel" id="adminPanel">
+      <h3 style="margin-top:0;color:var(--accent)">Pannello Admin</h3>
+
+      <div class="row"><strong>Annuncio</strong>
+        <input id="a_title" placeholder="Titolo annuncio" style="width:100%;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff;margin-top:6px">
+        <input id="a_img" placeholder="URL immagine (opzionale)" style="width:100%;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff;margin-top:6px">
+        <textarea id="a_text" rows="3" placeholder="Testo annuncio" style="width:100%;margin-top:6px;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button id="a_add" class="btn">Pubblica</button>
+          <button id="a_clear" class="btn" style="background:#8b0000">Rimuovi tutti</button>
+        </div>
+      </div>
+
+      <hr style="border-color:#222;margin:10px 0">
+
+      <div class="row"><strong>Sondaggi & Voti</strong>
+        <input id="p_title" placeholder="Titolo sondaggio" style="width:100%;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff;margin-top:6px">
+        <input id="p_opts" placeholder="Opzioni separate da , (es: Si,No,Forse)" style="width:100%;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff;margin-top:6px">
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button id="p_add" class="btn">Crea sondaggio</button>
+          <button id="p_clear" class="btn" style="background:#8b0000">Elimina tutti</button>
+        </div>
+      </div>
+
+      <hr style="border-color:#222;margin:10px 0">
+
+      <div class="row"><strong>Info gruppo</strong>
+        <textarea id="info_edit" rows="4" style="width:100%;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:8px">
+          <button id="save_info" class="btn">Salva Info</button>
+        </div>
+      </div>
+
+      <hr style="border-color:#222;margin:10px 0">
+
+      <div class="row">
+        <button id="export_data" class="btn">Esporta tutto (.json)</button>
+        <button id="import_data" class="btn" style="background:#444">Importa (.json)</button>
+        <input id="import_file" type="file" accept=".json" style="display:none">
+      </div>
+
+      <div style="margin-top:8px;font-size:.85rem;color:var(--muted)">Nota: password visibile solo nel codice. Non usare per dati sensibili.</div>
+    </div>
+  </div>
+
+  <footer>FNAF WORLD channel — built with ❤️</footer>
+
+<!-- Supabase client (UMD build) -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+
+<script>
+/* ---------------------------
+   CONFIG: imposta qui la password admin
+----------------------------*/
+const ADMIN_PW = 'FNAF world-1987'; // non toccare
+
+/* ---------------------------
+   Supabase config: usa le tue credenziali qui
+   Se vuoi cambiarle in futuro, modifica solo queste due costanti.
+----------------------------*/
+const SUPABASE_URL = 'https://hsmkbjllivejojedoohi.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhzbWtiamxsaXZlam9qZWRvb2hpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzMDk2OTksImV4cCI6MjA3ODg4NTY5OX0.M0E32pjY0rFV6T1Irt81CfyF8Jie8lB25URU9Sa24PQ';
+
+const supabase = supabaseJs.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* --- semplice storage locale per: announcements, comments, fanart, polls, votes, info --- */
+const STORAGE_KEY = 'fnaf_data_v1';
+let state = {
+  announcements: [], // {id,name,img,text,created_at}
+  comments: [],      // {id,created_at,name,commento}
+  fanart: [],        // {id,created_at,Nome_autore,immagine_url}
+  polls: [],         // local only
+  votes: [],         // local only
+  info: "Benvenuti nel FNAF WORLD channel! Modifica le info dall'admin."
+};
+
+// carica da localStorage se presente (fallback)
+try {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (raw) {
+    const parsed = JSON.parse(raw);
+    // merge but don't overwrite arrays from server later
+    state = {...state, ...parsed};
+  }
+} catch(e){ console.warn('storage read err',e) }
+
+/* ---------- UI render functions ---------- */
+function saveLocalBackup(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+function saveStateLocalAndRender(){ saveLocalBackup(); renderAll(); }
+
+function renderSlider(){
+  const slider = document.getElementById('slider');
+  slider.innerHTML=''; if(!state.announcements.length) { slider.innerHTML = '<div class="slide" style="opacity:1"><div class="caption">Nessun annuncio</div></div>'; document.getElementById('latestBody').innerText='Nessun annuncio'; return; }
+  state.announcements.forEach((a,idx)=>{
+    const s = document.createElement('div'); s.className='slide'; if(idx!==0) s.classList.add('hidden');
+    s.style.backgroundImage = a.img ? `url(${a.img})` : 'linear-gradient(180deg,#111,#070707)';
+    s.innerHTML = `<div class="caption"><strong>${escapeHtml(a.name)}</strong><div style="margin-top:6px">${escapeHtml(a.text)}</div></div>`;
+    slider.appendChild(s);
+  });
+  document.getElementById('latestBody').innerText = state.announcements.length ? (state.announcements[0].text || '') : 'Nessun annuncio';
+  startSlider();
+}
+let slideTimer;
+function startSlider(){ clearInterval(slideTimer); const slides = Array.from(document.querySelectorAll('.slide')); if(slides.length <=1) return; let i=0; slideTimer = setInterval(()=>{ slides[i].classList.add('hidden'); i = (i+1)%slides.length; slides[i].classList.remove('hidden'); document.getElementById('latestBody').innerText = state.announcements[i].text || ''; }, 4000); }
+
+function renderComments(){
+  const el = document.getElementById('c_list');
+  if(!state.comments.length){ el.innerHTML = '<div class="muted small">Nessun commento</div>'; return; }
+  el.innerHTML = state.comments.slice().reverse().map(c=>`<div style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.02)"><strong>${escapeHtml(c.name)}</strong> <div class="muted small">${new Date(c.created_at||c.t||Date.now()).toLocaleString()}</div><div>${escapeHtml(c.commento || c.text || '')}</div></div>`).join('');
+}
+function renderFanart(){
+  const g = document.getElementById('fan_grid'); g.innerHTML='';
+  if(!state.fanart.length){ g.innerHTML = '<div class="muted small">Nessuna fanart</div>'; return; }
+  state.fanart.slice().reverse().forEach(f=>{
+    const node = document.createElement('div'); node.className='fan-item';
+    node.innerHTML = `<img src="${f.immagine_url || f.dataurl}" alt=""><div style="margin-top:6px;font-size:.9rem">${escapeHtml(f.Nome_autore || f.title)}</div><div class="muted small">${escapeHtml(f.desc || '')}</div>`;
+    g.appendChild(node);
+  });
+}
+function renderPolls(){
+  const el = document.getElementById('polls_list');
+  if(!state.polls.length){ el.innerHTML = '<div class="muted small">Nessun sondaggio</div>'; return; }
+  el.innerHTML = state.polls.map((p,pi)=> {
+    const total = p.opts.reduce((s,o)=>s+o.votes,0) || 0;
+    const rows = p.opts.map((o,oi)=> {
+      const pct = total ? Math.round((o.votes/total)*100) : 0;
+      return `<div style="margin-bottom:8px"><div>${escapeHtml(o.text)} <button data-p="${pi}" data-o="${oi}" class="btn" style="float:right;padding:4px 8px">Vota</button></div><div class="bar" style="margin-top:6px"><i style="width:${pct}%"></i></div></div>`;
+    }).join('');
+    return `<div style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.03)"><strong>${escapeHtml(p.title)}</strong><div style="margin-top:8px">${rows}</div></div>`;
+  }).join('');
+}
+function renderVotes(){
+  const el = document.getElementById('votes_list');
+  if(!state.votes.length){ el.innerHTML = '<div class="muted small">Nessun voto attivo</div>'; return; }
+  el.innerHTML = state.votes.map(v=>{
+    const total = v.counts.reduce((s,n)=>s+n,0) || 0;
+    const rows = v.opts.map((o,oi)=> {
+      const pct = total ? Math.round((v.counts[oi]/total)*100) : 0;
+      return `<div style="margin-bottom:8px"><div>${escapeHtml(o)} <span style="float:right">${v.counts[oi]} (${pct}%)</span></div><div class="bar" style="margin-top:6px"><i style="width:${pct}%"></i></div></div>`;
+    }).join('');
+    return `<div style="padding:8px;border-bottom:1px solid rgba(255,255,255,0.03)"><strong>${escapeHtml(v.title)}</strong><div style="margin-top:8px">${rows}</div></div>`;
+  }).join('');
+}
+
+function renderInfo(){ document.getElementById('info_text').innerHTML = escapeHtml(state.info); }
+
+function renderAll(){ renderSlider(); renderComments(); renderFanart(); renderPolls(); renderVotes(); renderInfo(); }
+
+/* ---------- helpers ---------- */
+function escapeHtml(s){ return String(s||'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+/* ---------- events: comments ---------- */
+document.getElementById('c_send').addEventListener('click', async ()=>{
+  const n = document.getElementById('c_name').value.trim() || 'Anonimo';
+  const t = document.getElementById('c_text').value.trim();
+  if(!t) return alert('Scrivi un commento');
+  // try save to supabase
+  try {
+    const { data, error } = await supabase
+      .from('Commenti')
+      .insert([{ name: n, commento: t }])
+      .select();
+    if(error) throw error;
+    // push into local state from returned rows (with created_at)
+    if(data && data.length) {
+      state.comments.push(data[0]);
+    } else {
+      state.comments.push({name:n,commento:t,t:Date.now()});
+    }
+    saveLocalBackup();
+    renderAll();
+  } catch(err){
+    console.warn('Supabase comment insert failed, saving local', err);
+    state.comments.push({name:n,commento:t,t:Date.now()});
+    saveLocalBackup();
+    renderAll();
+  }
+  document.getElementById('c_text').value=''; document.getElementById('c_name').value='';
+});
+
+/* ---------- fanart upload (local only + supabase DB) ---------- */
+document.getElementById('f_add').addEventListener('click', async ()=>{
+  const fileInput = document.getElementById('f_file');
+  const title = document.getElementById('f_title').value.trim() || 'Anonimo';
+  const file = fileInput.files[0];
+  if(!file) return alert('Scegli un\'immagine');
+  const reader = new FileReader();
+  reader.onload = async function(e){
+    const dataurl = e.target.result;
+    // try to insert record into Supabase (as immagine_url using data URL)
+    try {
+      const { data, error } = await supabase
+        .from('Fanart')
+        .insert([{ Nome_autore: title, immagine_url: dataurl }])
+        .select();
+      if(error) throw error;
+      if(data && data.length) {
+        state.fanart.push(data[0]);
+      } else {
+        state.fanart.push({ Nome_autore: title, immagine_url: dataurl, t: Date.now() });
+      }
+      saveLocalBackup();
+      renderAll();
+    } catch(err){
+      console.warn('Supabase fanart insert failed, saving local', err);
+      state.fanart.push({ title, dataurl, desc:'', t:Date.now()});
+      saveLocalBackup();
+      renderAll();
+    }
+    fileInput.value=''; document.getElementById('f_title').value='';
+  }
+  reader.readAsDataURL(file);
+});
+
+/* ---------- admin: unlock ---------- */
+document.getElementById('pw_btn').addEventListener('click', ()=>{
+  const v = document.getElementById('pw').value;
+  if(!ADMIN_PW){ alert('La password non è stata impostata. Parla con chi gestisce il sito.'); return; }
+  if(v === ADMIN_PW){
+    document.getElementById('adminPanel').style.display='block';
+    document.querySelector('.admin-login').style.display='none';
+    alert('Accesso admin abilitato');
+    renderAll();
+  } else alert('Password errata');
+});
+
+/* ---------- admin actions: announcements ---------- */
+document.getElementById('a_add').addEventListener('click', async ()=>{
+  const title = document.getElementById('a_title').value.trim() || 'Annuncio';
+  const img = document.getElementById('a_img').value.trim();
+  const text = document.getElementById('a_text').value.trim() || '';
+  // try save to supabase
+  try {
+    const { data, error } = await supabase
+      .from('Announcements')
+      .insert([{ name: title, text: text, img: img }])
+      .select();
+    if(error) throw error;
+    if(data && data.length) {
+      // new record inserted; add to state at front
+      state.announcements.unshift(data[0]);
+    } else {
+      state.announcements.unshift({ name: title, text, img, t: Date.now() });
+    }
+    saveLocalBackup();
+    renderAll();
+  } catch(err){
+    console.warn('Supabase announcement insert failed, saving local', err);
+    state.announcements.unshift({ title, img, text, t: Date.now() });
+    saveLocalBackup();
+    renderAll();
+  }
+  document.getElementById('a_title').value=''; document.getElementById('a_img').value=''; document.getElementById('a_text').value='';
+});
+document.getElementById('a_clear').addEventListener('click', async ()=>{ if(confirm('Rimuovere tutti gli annunci?')){ 
+  // try delete via supabase
+  try {
+    const { error } = await supabase.from('Announcements').delete().neq('id', 0); // delete all
+    if(error) throw error;
+    state.announcements=[];
+    saveLocalBackup();
+    renderAll();
+  } catch(err){
+    console.warn('Supabase delete failed, clearing local only', err);
+    state.announcements=[];
+    saveLocalBackup();
+    renderAll();
+  }
+} });
+
+/* ---------- admin actions: polls & votes (local only) ---------- */
+document.getElementById('p_add').addEventListener('click', ()=>{
+  const title = document.getElementById('p_title').value.trim() || 'Sondaggio';
+  const opts = document.getElementById('p_opts').value.split(',').map(s=>s.trim()).filter(Boolean);
+  if(!opts.length) return alert('Inserisci almeno una opzione separata da virgole');
+  state.polls.push({title, opts: opts.map(o=>({text:o,votes:0})), t:Date.now()});
+  saveLocalBackup(); document.getElementById('p_title').value=''; document.getElementById('p_opts').value='';
+});
+document.getElementById('p_clear').addEventListener('click', ()=>{ if(confirm('Eliminare tutti i sondaggi?')){ state.polls=[]; saveLocalBackup(); } });
+
+/* handle poll vote buttons */
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-p]');
+  if(btn){
+    const p = Number(btn.dataset.p), o = Number(btn.dataset.o);
+    const poll = state.polls[p]; if(!poll) return;
+    poll.opts[o].votes = (poll.opts[o].votes||0) + 1; saveLocalBackup(); alert('Voto registrato'); return;
+  }
+});
+
+/* ---------- export / import ---------- */
+document.getElementById('export_data').addEventListener('click', ()=>{
+  const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'fnaf_full_export.json'; document.body.appendChild(a); a.click(); a.remove();
+});
+document.getElementById('import_data').addEventListener('click', ()=>{ document.getElementById('import_file').click(); });
+document.getElementById('import_file').addEventListener('change', function(){
+  const f = this.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = function(e){ try { const imported = JSON.parse(e.target.result); state = {...state, ...imported}; saveLocalBackup(); alert('Import completato'); renderAll(); } catch { alert('File non valido'); } };
+  r.readAsText(f);
+});
+
+/* ---------- info save ---------- */
+document.getElementById('save_info').addEventListener('click', ()=>{
+  state.info = document.getElementById('info_edit').value || '';
+  saveLocalBackup(); alert('Info salvate.'); renderInfo();
+});
+
+/* ---------- Supabase: load initial data ---------- */
+async function loadFromSupabase(){
+  // Try to pull announcements, comments and fanart from Supabase.
+  try {
+    // announcements
+    const { data: annData, error: annErr } = await supabase
+      .from('Announcements')
+      .select('id,name,text,img,created_at')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if(annErr) throw annErr;
+    if(Array.isArray(annData)) state.announcements = annData.map(a=>({ id: a.id, name: a.name, text: a.text, img: a.img, created_at: a.created_at }));
+
+    // comments
+    const { data: comData, error: comErr } = await supabase
+      .from('Commenti')
+      .select('id,name,commento,created_at')
+      .order('created_at', { ascending: false })
+      .limit(500);
+    if(comErr) throw comErr;
+    if(Array.isArray(comData)) state.comments = comData.map(c=>({ id:c.id, name:c.name, commento:c.commento, created_at:c.created_at }));
+
+    // fanart
+    const { data: fanData, error: fanErr } = await supabase
+      .from('Fanart')
+      .select('id,Nome_autore,immagine_url,created_at')
+      .order('created_at', { ascending: false })
+      .limit(200);
+    if(fanErr) throw fanErr;
+    if(Array.isArray(fanData)) state.fanart = fanData.map(f=>({ id:f.id, Nome_autore:f.Nome_autore, immagine_url:f.immagine_url, created_at:f.created_at }));
+
+    saveLocalBackup();
+    renderAll();
+  } catch(err){
+    console.warn('Errore caricamento Supabase, uso backup locale', err);
+    // fallback: keep local state
+    renderAll();
+  }
+}
+
+/* ---------- initial setup ---------- */
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.getElementById('info_edit').value = state.info;
+  renderAll();
+  // attempt to load server data (doesn't replace local if fails)
+  loadFromSupabase();
+});
+</script>
+</body>
+</html>
