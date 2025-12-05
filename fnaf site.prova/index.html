@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FNAF WORLD channel</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎮</text></svg>">
+<style>
+  :root{
+    --bg1:#040206; --bg2:#0b0508;
+    --panel:#0f0f12; --glass: rgba(255,255,255,0.03);
+    --accent:#ff2b2b; --muted:#9aa0a6;
+    --glow: 0 0 18px rgba(255,43,43,0.12);
+    --maxw:1100px;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;font-family:Inter,system-ui,Arial;background:linear-gradient(180deg,var(--bg1),var(--bg2));color:#eee}
+  .bg{position:fixed;inset:0;z-index:-2;overflow:hidden;background: radial-gradient(ellipse at 10% 20%, rgba(255,40,40,0.06) 0%, transparent 20%),radial-gradient(ellipse at 90% 80%, rgba(255,0,80,0.04) 0%, transparent 18%);animation:pulse 8s infinite alternate}
+  @keyframes pulse{from{transform:scale(1)} to{transform:scale(1.02)}}
+  .grain{position:fixed;inset:0;z-index:-1;opacity:.06;background-image:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200"><filter id="n"><feTurbulence baseFrequency="0.8" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" /></svg>');mix-blend-mode:overlay}
+
+  header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.25));backdrop-filter:blur(4px);position:sticky;top:0;z-index:40;border-bottom:1px solid rgba(255,255,255,0.03)}
+  .brand{display:flex;gap:12px;align-items:center}
+  .logo{width:52px;height:52px;border-radius:10px;background:linear-gradient(135deg,#1a1a1a,#000);display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:var(--glow)}
+  .brand h1{margin:0;font-size:1.05rem;letter-spacing:0.6px;color:var(--accent)}
+  nav{display:flex;gap:12px;align-items:center}
+  nav a{color:#ddd;text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:600;font-size:.95rem}
+  nav a:hover{background:rgba(255,255,255,0.02);box-shadow:var(--glow);transform:translateY(-2px)}
+
+  main{max-width:var(--maxw);margin:26px auto;padding:18px}
+  .panel{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:14px;box-shadow:0 10px 30px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.03)}
+  h2{margin:0 0 12px 0;color:var(--accent)}
+
+  .slider-wrap{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+  .slider{position:relative;height:300px;border-radius:10px;overflow:hidden}
+  .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:#070707;background-size:cover;background-position:center;transition:opacity .6s}
+  .slide.hidden{opacity:0;pointer-events:none}
+  .slide .caption{background:linear-gradient(180deg,rgba(0,0,0,.45),rgba(0,0,0,.6));padding:10px;border-radius:8px;max-width:80%;text-align:center}
+  .latest{border-radius:10px;padding:12px;background:linear-gradient(180deg,#090909,#080808);min-height:88px}
+
+  section{margin-top:18px}
+  .cols{display:grid;grid-template-columns:1fr 360px;gap:16px}
+  .post{background:linear-gradient(180deg,#0f0f10,#0a0a0a);padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,0.02)}
+  .small{font-size:.9rem;color:var(--muted)}
+  .btn{background:var(--accent);border:0;color:#fff;padding:8px 10px;border-radius:8px;cursor:pointer}
+  .muted{color:var(--muted)}
+
+  .fan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .fan-item{background:#0b0b0b;padding:6px;border-radius:8px;border:1px solid rgba(255,255,255,0.03);text-align:center}
+  .fan-item img{max-width:100%;height:140px;object-fit:cover;border-radius:6px}
+
+  .bar{height:12px;background:#111;border-radius:8px;overflow:hidden}
+  .bar > i{display:block;height:100%;background:linear-gradient(90deg,#ff6b6b,#ff2b2b);width:0%}
+
+  .admin-box{position:fixed;right:16px;top:16px;z-index:60}
+  .admin-login{background:var(--panel);padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+  .admin-panel{display:none;width:360px;padding:12px;border-radius:10px;background:linear-gradient(180deg,#101014,#08080a);box-shadow:0 20px 60px rgba(0,0,0,0.6)}
+  .admin-panel .row{margin-bottom:8px}
+
+  footer{max-width:var(--maxw);margin:26px auto;color:var(--muted);text-align:center;padding:12px 0}
+
+  @media (max-width:900px){ .slider-wrap,.cols{grid-template-columns:1fr} .fan-grid{grid-template-columns:repeat(2,1fr)} .admin-panel{width:92vw} }
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="grain"></div>
+
+<header>
+  <div class="brand">
+    <div class="logo">⚙️</div>
+    <div>
+      <h1>FNAF WORLD channel</h1>
+      <div class="muted" style="font-size:.82rem">HQ del team • private fan hub</div>
+    </div>
+  </div>
+  <nav>
+    <a href="#annunci">Annunci</a>
+    <a href="#commenti">Commenti</a>
+    <a href="#fanart">Fanart</a>
+    <a href="#sondaggi">Sondaggi</a>
+    <a href="#voti">Voti</a>
+    <a href="#info">Info</a>
+  </nav>
+</header>
+
+<main>
+  <!-- ANNUNCI -->
+  <section id="annunci" class="panel">
+    <h2>Annunci</h2>
+    <div class="slider-wrap">
+      <div class="slider" id="slider"></div>
+      <div>
+        <div class="latest" id="latestText">
+          <strong>Ultimo annuncio</strong>
+          <div class="small muted" id="latestBody">Nessun annuncio</div>
+        </div>
+        <div style="height:12px"></div>
+        <div class="post small muted">Solo gli admin possono creare annunci ufficiali. Gli iscritti possono leggere qui sotto.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COMMENTI -->
+  <section id="commenti" class="panel">
+    <h2>Commenti</h2>
+    <div class="cols">
+      <div>
+        <div class="post">
+          <div style="display:flex;gap:8px;margin-bottom:8px">
+            <input id="c_name" placeholder="Nome" style="flex:0 0 140px;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff">
+            <input id="c_text" placeholder="Scrivi un commento..." style="flex:1;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff">
+            <button class="btn" id="c_send">Invia</button>
+          </div>
+          <div id="emojiBar" style="margin:6px 0;">
+            <button class="btn" style="padding:4px 6px">💗</button>
+            <button class="btn" style="padding:4px 6px">🦊</button>
+            <button class="btn" style="padding:4px 6px">🎀</button>
+            <button class="btn" style="padding:4px 6px">💛</button>
+            <button class="btn" style="padding:4px 6px">🍪</button>
+            <button class="btn" style="padding:4px 6px">🎁</button>
+            <button class="btn" style="padding:4px 6px">💜</button>
+            <button class="btn" style="padding:4px 6px">🎂</button>
+            <button class="btn" style="padding:4px 6px">😎</button>
+            <button class="btn" style="padding:4px 6px">😂</button>
+            <button class="btn" style="padding:4px 6px">🔥</button>
+            <button class="btn" style="padding:4px 6px">👍</button>
+            <button class="btn" style="padding:4px 6px">❤️</button>
+          </div>
+          <div id="c_list" class="muted small">Nessun commento</div>
+        </div>
+      </div>
+      <aside class="post small">
+        <strong>Regole</strong>
+        <div class="muted" style="margin-top:6px">Comportatevi bene. Niente spoiler nei commenti senza avviso.</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- FANART -->
+  <section id="fanart" class="panel">
+    <h2>Fanart</h2>
+    <div style="display:flex;gap:12px;align-items:flex-start">
+      <div style="flex:1">
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input id="f_title" placeholder="Titolo / autore" style="flex:0 0 180px;padding:8px;border-radius:6px;background:#090909;border:1px solid #222;color:#fff">
+          <input id="f_file" type="file" accept="image/*" style="flex:1">
+          <button class="btn" id="f_add">Carica</button>
+        </div>
+        <div class="fan-grid" id="fan_grid"></div>
+      </div>
+      <aside class="post small" style="width:320px">
+        <strong>Info</strong>
+        <div class="muted" style="margin-top:8px">Carica immagini rispettando i diritti. Le immagini vengono salvate solo nel browser di chi le carica oppure nel DB (se supportato).</div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- SONDAGGI -->
+  <section id="sondaggi" class="panel">
+    <h2>Sondaggi</h2>
+    <div id="polls_list" class="post small muted">Nessun sondaggio</div>
+    <div style="margin-top:10px" class="muted small">Gli admin possono creare sondaggi dal pannello.</div>
+  </section>
+
+  <!-- VOTI -->
+  <section id="voti" class="panel">
+    <h2>Voti</h2>
+    <div id="votes_list" class="post small muted">Nessun voto attivo</div>
+  </section>
+
+  <!-- INFO -->
+  <section id="info" class="panel">
+    <h2>Info del gruppo</h2>
+    <div class="post" style="margin-bottom:10px">
+      <div id="info_text">Benvenuti nel FNAF WORLD channel! Qui pubblichiamo annunci, fanart e sondaggi del nostro gruppo.</div>
+    </div>
+    <div class="muted small">Solo gli admin possono modificare le Info (salvate localmente).</div>
+  </section>
+</main>
+
+<!-- ADMIN BOX -->
+<div class="admin-box">
+  <div class="admin-login">
+    <input id="pw" type="password" placeholder="Parola admin" style="padding:6px;border-radius:6px;background:#060606;border:1px solid #222;color:#fff">
+    <button id="pw_btn" class="btn" style="margin-left:6px">Entra</button>
+  </div>
+  <div class="admin-panel panel" id="adminPanel">
+    <h3 style="margin-top:0;color:var(--accent)">Pannello Admin</h3>
+    <!-- Qui il JS gestirà tutto -->
+  </div>
+</div>
+
+<footer>FNAF WORLD channel — built with ❤️</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js/dist/umd/supabase.min.js"></script>
+<script src="chat.js"></script>
+</body>
+</html>
